@@ -1,0 +1,18 @@
+# Start from the official Go image 
+FROM golang:1.24rc1-alpine3.21 AS builder
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Copy the Go module files and download dependencies
+COPY go.mod ./
+RUN go mod download
+
+# Copy the source code
+COPY . .
+
+# Build the application
+RUN go build -o hello-docker cmd/main.go
+
+# Define the entry point (optional)
+ENTRYPOINT ["/app/hello-docker"]
