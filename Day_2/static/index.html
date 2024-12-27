@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cute Whale Animation</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f0f8ff;
+      overflow: hidden;
+      position: relative;
+      flex-direction: column;
+      align-items: center;
+    }
+    .ocean {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url('https://www.transparenttextures.com/patterns/diamonds.png'), #00aaff;
+      animation: oceanWave 10s linear infinite;
+      z-index: -1;
+    }
+    @keyframes oceanWave {
+      0% {
+        background-position: 0 0;
+      }
+      100% {
+        background-position: 500px 0;
+      }
+    }
+    h1 {
+      font-size: 48px;
+      margin-top: 30px;
+      color: #333;
+      text-align: center;
+      font-weight: bold;
+      margin-bottom: 50px;
+    }
+    .container {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+    }
+    .whale {
+      width: 250px;
+      height: auto;
+      position: absolute;
+      cursor: pointer;
+      transition: transform 0.1s ease-in-out;
+    }
+    #message {
+      font-size: 24px;
+      font-weight: bold;
+      color: #333;
+      margin-top: 20px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Click on the Whale!</h1>
+
+  <div class="ocean"></div>
+
+  <div class="container">
+    <h1 class="whale">🐳</h1>
+    <div id="message"></div>
+  </div>
+
+  <script>
+    const whale = document.querySelector('.whale');
+    const messageDiv = document.querySelector('#message');
+
+    let isMoving = false;
+
+    document.addEventListener('mousemove', (e) => {
+      const mouseX = e.clientX;
+      const mouseY = e.clientY;
+      const whaleRect = whale.getBoundingClientRect();
+      const whaleCenterX = whaleRect.left + whaleRect.width / 2;
+      const whaleCenterY = whaleRect.top + whaleRect.height / 2;
+      const distanceX = mouseX - whaleCenterX;
+      const distanceY = mouseY - whaleCenterY;
+      const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+      const moveDistance = distance < 200 ? 200 : 100;
+
+      if (distance < 200 && !isMoving) {
+        isMoving = true;
+        whale.style.transition = 'transform 0.1s ease-in-out';
+      }
+
+      if (isMoving) {
+        const moveX = (distanceX / distance) * moveDistance;
+        const moveY = (distanceY / distance) * moveDistance;
+        whale.style.transform = `translate(${moveX}px, ${moveY}px)`;
+      }
+
+      if (distance > 200 && isMoving) {
+        isMoving = false;
+        whale.style.transition = 'transform 0.5s ease-out';
+        whale.style.transform = '';
+      }
+    });
+
+    whale.addEventListener('click', () => {
+      messageDiv.textContent = 'Hello from Docker!';
+      messageDiv.style.display = 'block';
+      console.log('Hello from Docker!');
+    });
+  </script>
+
+</body>
+</html>
