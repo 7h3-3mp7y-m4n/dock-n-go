@@ -1,0 +1,21 @@
+# Start from the official image of your codebase
+FROM golang:1.24rc1-alpine3.21 AS builder
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Copy the module files and download dependencies
+COPY go.mod ./
+RUN go mod download
+
+# Copy the source code
+COPY . .
+
+# Build the application
+RUN go build -o main ./cmd/main.go
+
+# Expose the port the app will run on (not necessary)
+EXPOSE 8080
+
+# Command to run the application
+CMD ["./main"]
