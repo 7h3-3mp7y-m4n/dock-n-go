@@ -8,6 +8,7 @@ import (
 
 func main() {
 	log.Println("Starting server on :8080 ...")
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
 	http.Handle("/", http.HandlerFunc(handler.Hello))
 	http.Handle("/bye", http.HandlerFunc(handler.Bye))
 

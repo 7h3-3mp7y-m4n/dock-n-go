@@ -15,4 +15,4 @@ COPY . .
 RUN go build -o hello-docker cmd/main.go
 
 # Define the entry point (optional)
-ENTRYPOINT ["/app/hell
+ENTRYPOINT ["/app/hello-docker"]
