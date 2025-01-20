@@ -14,38 +14,51 @@ type User struct {
 	Password string `json:"password"`
 }
 
-var user = []User{
-	{"admin123", "$2a$10$wJPnALYw9t6yESNzU0vPlu0Zz7FysJLOxyI0V54lbWqY1X6GGoPOy"}, // password: password123 You should not hardcode user like this, use .enc to inject them
-}
+var users = []User{}
 
-func login(ctx *gin.Context) {
+func Login(ctx *gin.Context) {
 	var loginUser User
-	err := ctx.ShouldBindJSON(&loginUser)
-	if err != nil {
+	if err := ctx.ShouldBindJSON(&loginUser); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Request"})
 		return
 	}
-	for _, value := range user {
+
+	for _, value := range users {
 		if value.UserName == loginUser.UserName {
 			if err := bcrypt.CompareHashAndPassword([]byte(value.Password), []byte(loginUser.Password)); err == nil {
-				token := genrateJWT(value.UserName)
+				token := generateJWT(value.UserName)
 				ctx.JSON(http.StatusAccepted, gin.H{"token": token})
 				return
 			}
-
 		}
 	}
 	ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid username or password"})
 }
+func Register(ctx *gin.Context) {
+	var newUser User
+	if err := ctx.ShouldBindJSON(&newUser); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Request"})
+		return
+	}
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newUser.Password), bcrypt.DefaultCost)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})
+		return
+	}
+	newUser.Password = string(hashedPassword)
+	users = append(users, newUser)
 
-func genrateJWT(UserName string) string {
+	ctx.JSON(http.StatusCreated, gin.H{"message": "User registered successfully"})
+}
+
+func generateJWT(UserName string) string {
 	expirationTime := time.Now().Add(2 * time.Hour)
 	claims := jwt.RegisteredClaims{
 		ExpiresAt: jwt.NewNumericDate(expirationTime),
 		Issuer:    UserName,
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString(cmd.jwtSecret)
+	tokenString, err := token.SignedString([]byte("Dock-n-go"))
 	if err != nil {
 		return ""
 	}
